@@ -2,13 +2,41 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Hamburg 53 - Cash-Control</title>
     <link rel="icon" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#121212">
+    
+    <!-- Dynamisches Manifest für echten Vollbild-Modus ohne Tableiste -->
+    <script>
+        const manifestData = {
+            "name": "Hamburg 53 Cash-Control",
+            "short_name": "Hamburg 53",
+            "start_url": window.location.href,
+            "display": "standalone",
+            "background_color": "#121212",
+            "theme_color": "#121212",
+            "icons": [
+                {
+                    "src": "icon.png",
+                    "sizes": "192x192",
+                    "type": "image/png"
+                }
+            ]
+        };
+        const stringManifest = JSON.stringify(manifestData);
+        const blob = new Blob([stringManifest], {type: 'application/json'});
+        const manifestURL = URL.createObjectURL(blob);
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = manifestURL;
+        document.head.appendChild(link);
+    </script>
+
     <style>
         :root { 
             --primary: #2196f3; 
@@ -29,6 +57,8 @@
             display: flex; 
             height: 100vh; 
             overflow: hidden; 
+            user-select: none;
+            -webkit-user-select: none;
         }
 
         #log-panel {
@@ -554,7 +584,6 @@
                         state.stats[n] = 0;
                     }
                 });
-                // Statistik komplett auf 0 zurücksetzen bei Reset
                 state.lifetimeGenerated = namen.reduce((acc, n) => ({...acc, [n]: 0}), {});
                 state.logs = [];
                 addLog("--- NEUER SPIELTAG ---");
