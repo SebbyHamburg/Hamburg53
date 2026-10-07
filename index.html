@@ -355,7 +355,7 @@
                         if (state.paid[n] === undefined) state.paid[n] = false;
                     });
                 }
-                if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
+                if (!state.lifetimeGenerated) state.lifetimeGenerated = namen.reduce((acc, n) => ({...acc, [n]: 0}), {});
                 if (!state.logs) state.logs = [];
                 if (!state.history) state.history = [];
             } else {
@@ -447,7 +447,7 @@
             const event = katalog[eventIndex];
             saveSnapshot();
 
-            if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
+            if (!state.lifetimeGenerated) state.lifetimeGenerated = namen.reduce((acc, n) => ({...acc, [n]: 0}), {});
 
             if (event.typ === 'direct') {
                 if (selectedPlayer !== "Ghost") {
@@ -554,7 +554,8 @@
                         state.stats[n] = 0;
                     }
                 });
-                // Verlauf beim Reset komplett leeren und mit neuem Tag starten
+                // Statistik komplett auf 0 zurücksetzen bei Reset
+                state.lifetimeGenerated = namen.reduce((acc, n) => ({...acc, [n]: 0}), {});
                 state.logs = [];
                 addLog("--- NEUER SPIELTAG ---");
                 renderPlayers();
@@ -567,7 +568,7 @@
             const modal = document.getElementById('stats-modal');
             const listContent = document.getElementById('stats-list-content');
             
-            if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
+            if (!state.lifetimeGenerated) state.lifetimeGenerated = namen.reduce((acc, n) => ({...acc, [n]: 0}), {});
 
             const sorted = namen
                 .filter(n => n !== "Ghost")
