@@ -397,7 +397,6 @@
                 const isPaid = state.paid ? state.paid[n] : false;
                 const isGhost = (n === "Ghost");
                 
-                // Wenn bezahlt, wird 0.00 € angezeigt, ansonsten aktueller Wert + Vortrag
                 const heute = isGhost ? 0 : (state.stats ? state.stats[n] || 0 : 0);
                 const vortragVal = isGhost ? 0 : (state.vortrag ? state.vortrag[n] || 0 : 0);
                 const anzeigeSumme = isPaid ? 0 : (heute + vortragVal);
@@ -480,6 +479,8 @@
                 addLog(`${name}: Wieder offen`);
             }
             save();
+            renderPlayers();
+            renderLogs();
         }
 
         function adjustSeasonKasse() {
