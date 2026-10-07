@@ -140,8 +140,7 @@
         .player-card.is-ghost { border-style: dashed; opacity: 0.6; }
         
         .player-name { font-weight: bold; font-size: 1.2rem; }
-        .vortrag-info { font-size: 0.7rem; color: var(--warning); height: 1.2em; }
-        .player-sum { font-size: 1.6rem; color: #fff; font-weight: bold; margin: 10px 0 4px 0; }
+        .player-sum { font-size: 1.6rem; color: #fff; font-weight: bold; margin: 16px 0 10px 0; }
 
         .btn-pay { 
             background: #333; 
@@ -499,6 +498,7 @@
             }
             save();
             renderPlayers();
+            renderLogs();
         }
 
         function undo() {
