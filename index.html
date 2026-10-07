@@ -1,0 +1,1126 @@
+<!DOCTYPE html>
+
+<html lang="de">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Hamburg 53 - Cash-Control</title>
+
+    <link rel="icon" href="icon.png">
+
+    <link rel="apple-touch-icon" href="icon.png">
+
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <meta name="theme-color" content="#121212">
+
+    <style>
+
+        :root { 
+
+            --primary: #2196f3; 
+
+            --bg: #121212; 
+
+            --card: #1e1e1e; 
+
+            --text: #ffffff; 
+
+            --success: #4caf50; 
+
+            --warning: #ffa000; 
+
+        }
+
+        
+
+        * { box-sizing: border-box; }
+
+
+
+        body { 
+
+            font-family: 'Segoe UI', Arial, sans-serif; 
+
+            background-color: var(--bg); 
+
+            color: var(--text); 
+
+            margin: 0; 
+
+            display: flex; 
+
+            height: 100vh; 
+
+            overflow: hidden; 
+
+        }
+
+
+
+        #log-panel {
+
+            width: 170px;
+
+            background: #181818;
+
+            border-right: 1px solid #333;
+
+            padding: 12px 10px;
+
+            font-size: 0.75rem;
+
+            height: 100vh;
+
+            overflow-y: auto;
+
+            color: #aaa;
+
+            display: flex;
+
+            flex-direction: column;
+
+            flex-shrink: 0;
+
+        }
+
+        #log-panel h3 { 
+
+            color: var(--primary); 
+
+            font-size: 0.75rem; 
+
+            text-transform: uppercase; 
+
+            margin-top: 0; 
+
+            margin-bottom: 8px; 
+
+            border-bottom: 1px solid #333; 
+
+            padding-bottom: 5px; 
+
+            flex-shrink: 0; 
+
+            letter-spacing: 1px;
+
+        }
+
+
+
+        .btn-stats-open {
+
+            background: #2a2a2a;
+
+            color: var(--primary);
+
+            border: 1px solid var(--primary);
+
+            padding: 8px 5px;
+
+            border-radius: 6px;
+
+            font-size: 0.7rem;
+
+            font-weight: bold;
+
+            cursor: pointer;
+
+            margin-bottom: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+            text-align: center;
+
+        }
+
+        .btn-stats-open:active {
+
+            background: var(--primary);
+
+            color: #fff;
+
+        }
+
+
+
+        #log-content { 
+
+            display: flex; 
+
+            flex-direction: column-reverse; 
+
+            gap: 6px; 
+
+        }
+
+        .log-entry { 
+
+            padding: 8px; 
+
+            background: #222; 
+
+            border-radius: 6px; 
+
+            border-left: 3px solid #444; 
+
+            line-height: 1.2;
+
+            animation: fadeIn 0.3s;
+
+        }
+
+        .log-entry:last-child { 
+
+            color: var(--primary); 
+
+            border-left-color: var(--primary); 
+
+            background: #1a2633; 
+
+        }
+
+        .log-time { color: #666; font-size: 0.65rem; display: block; margin-bottom: 2px; }
+
+        .log-action { color: #eee; font-size: 0.75rem; }
+
+
+
+        .main-content {
+
+            flex: 1;
+
+            padding: 15px;
+
+            height: 100vh;
+
+            overflow-y: auto;
+
+        }
+
+
+
+        h1 { color: var(--primary); text-align: center; margin: 0 0 15px 0; text-transform: uppercase; letter-spacing: 2px; font-size: 1.4rem; }
+
+        
+
+        .kassen-container { display: flex; gap: 12px; margin-bottom: 20px; }
+
+        .kasse-box { flex: 1; background: #252525; border: 1px solid #444; border-radius: 12px; padding: 12px; text-align: center; cursor: pointer; }
+
+        .kasse-box.main { border: 2px solid var(--primary); background: #1a2633; cursor: default; }
+
+        .kasse-box.season { border: 2px solid var(--warning); background: #2b2210; }
+
+        .kasse-box span { display: block; font-size: 0.65rem; color: #aaa; text-transform: uppercase; }
+
+        .kasse-box b { font-size: 1.4rem; color: var(--primary); }
+
+
+
+        .player-grid { 
+
+            display: grid; 
+
+            grid-template-columns: repeat(4, 1fr); 
+
+            gap: 12px; 
+
+            margin-bottom: 25px; 
+
+        }
+
+
+
+        .player-wrapper {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 6px;
+
+        }
+
+
+
+        .player-card { 
+
+            background: var(--card); 
+
+            border: 2px solid #444; 
+
+            padding: 12px; 
+
+            border-radius: 12px; 
+
+            cursor: pointer; 
+
+            position: relative; 
+
+            border-left: 5px solid #444; 
+
+            flex: 1;
+
+        }
+
+        .player-card.selected { border-color: var(--primary); background: #0d273d; box-shadow: 0 0 15px rgba(33, 150, 243, 0.3); }
+
+        .player-card.paid { border-color: var(--success); background: #1a2e1a; opacity: 0.6; }
+
+        .player-card.is-ghost { border-style: dashed; opacity: 0.6; }
+
+        
+
+        .player-name { font-weight: bold; font-size: 1.2rem; }
+
+        .vortrag-info { font-size: 0.7rem; color: var(--warning); height: 1.2em; }
+
+        .player-sum { font-size: 1.4rem; color: #fff; font-weight: bold; margin: 4px 0; }
+
+        .total-info { border-top: 1px solid #333; padding-top: 6px; font-size: 0.85rem; color: var(--success); font-weight: bold; }
+
+
+
+        .btn-pay { 
+
+            background: #333; 
+
+            color: #aaa; 
+
+            border: 1px solid #555; 
+
+            padding: 8px; 
+
+            font-size: 0.75rem; 
+
+            width: 100%; 
+
+            border-radius: 8px; 
+
+            cursor: pointer; 
+
+            font-weight: bold; 
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.5px;
+
+        }
+
+        .btn-pay.is-paid {
+
+            background: #2e7d32;
+
+            color: #fff;
+
+            border-color: var(--success);
+
+        }
+
+
+
+        .grid-events { 
+
+            display: grid; 
+
+            grid-template-columns: repeat(6, 1fr); 
+
+            gap: 12px; 
+
+            margin-bottom: 25px; 
+
+        }
+
+        .event-card { 
+
+            background: #2a2a2a; 
+
+            border: 2px solid #555; 
+
+            padding: 18px 10px; 
+
+            border-radius: 12px; 
+
+            text-align: center; 
+
+            cursor: pointer; 
+
+            transition: all 0.1s; 
+
+            user-select: none; 
+
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+
+        }
+
+        .event-card:active { transform: scale(0.92); background: var(--primary); border-color: #fff; }
+
+        .event-card span { display: block; font-size: 0.95rem; color: #ddd; margin-bottom: 5px; font-weight: 500; }
+
+        .event-card b { font-size: 1.5rem; color: #fff; }
+
+
+
+        .controls { display: flex; gap: 10px; border-top: 1px solid #333; padding-top: 20px; padding-bottom: 30px; }
+
+        .btn-main { flex: 1; padding: 18px; border-radius: 10px; border: none; cursor: pointer; font-weight: bold; color: white; font-size: 1rem; text-transform: uppercase; }
+
+
+
+        .modal-overlay {
+
+            display: none;
+
+            position: fixed;
+
+            top: 0; left: 0; right: 0; bottom: 0;
+
+            background: rgba(0, 0, 0, 0.85);
+
+            z-index: 1000;
+
+            align-items: center;
+
+            justify-content: center;
+
+            backdrop-filter: blur(4px);
+
+        }
+
+        .modal-box {
+
+            background: #1e1e1e;
+
+            border: 2px solid var(--primary);
+
+            border-radius: 14px;
+
+            width: 90%;
+
+            max-width: 420px;
+
+            padding: 20px;
+
+            box-shadow: 0 0 25px rgba(33, 150, 243, 0.4);
+
+            position: relative;
+
+        }
+
+        .modal-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            border-bottom: 1px solid #333;
+
+            padding-bottom: 10px;
+
+            margin-bottom: 15px;
+
+        }
+
+        .modal-header h2 { margin: 0; font-size: 1.2rem; color: var(--primary); text-transform: uppercase; }
+
+        .btn-close {
+
+            background: transparent;
+
+            border: none;
+
+            color: #888;
+
+            font-size: 1.5rem;
+
+            cursor: pointer;
+
+            font-weight: bold;
+
+        }
+
+        .stats-list {
+
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 8px;
+
+            max-height: 300px;
+
+            overflow-y: auto;
+
+        }
+
+        .stats-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 10px 12px;
+
+            background: #282828;
+
+            border-radius: 8px;
+
+            font-size: 0.95rem;
+
+        }
+
+        .stats-row .rank { font-weight: bold; color: var(--warning); width: 25px; }
+
+        .stats-row .s-name { flex: 1; font-weight: 500; }
+
+        .stats-row .s-val { font-weight: bold; color: var(--primary); }
+
+
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+
+
+        @media (max-width: 500px) { #log-panel { display: none; } }
+
+    </style>
+
+
+
+    <!-- Firebase SDK Scripts -->
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+</head>
+
+<body>
+
+
+
+    <div id="log-panel">
+
+        <h3>Verlauf</h3>
+
+        <button class="btn-stats-open" onclick="openStats()">📊 Statistik</button>
+
+        <div id="log-content"></div>
+
+    </div>
+
+
+
+    <div class="main-content">
+
+        <h1>🎯 Hamburg 53</h1>
+
+        
+
+        <div class="kassen-container">
+
+            <div class="kasse-box main">
+
+                <span>Tageskasse (noch offen)</span>
+
+                <b id="grand-total">0.00 €</b>
+
+            </div>
+
+            <div class="kasse-box season" onclick="adjustSeasonKasse()">
+
+                <span>Gesamtkasse (ab 15.02.2026) ⚙️</span>
+
+                <b id="season-total" style="color:var(--warning)">0.00 €</b>
+
+            </div>
+
+        </div>
+
+
+
+        <div class="player-grid" id="player-area"></div>
+
+        <div class="grid-events" id="event-area"></div>
+
+
+
+        <div class="controls">
+
+            <button class="btn-main" style="background: #444;" onclick="undo()">⬅️ Rückgängig</button>
+
+            <button class="btn-main" style="background: #b71c1c;" onclick="confirmReset()">🆕 Spieltag Reset</button>
+
+        </div>
+
+    </div>
+
+
+
+    <div id="stats-modal" class="modal-overlay" onclick="closeStats(event)">
+
+        <div class="modal-box" onclick="event.stopPropagation()">
+
+            <div class="modal-header">
+
+                <h2>🏆 Kassen-Sponsoren</h2>
+
+                <button class="btn-close" onclick="closeStats()">✕</button>
+
+            </div>
+
+            <div id="stats-list-content" class="stats-list"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <script>
+
+        const firebaseConfig = {
+
+            apiKey: "AIzaSyA12lVS4Ygt8s6xRBZ2kx4IPj5M0DFyi1s",
+
+            authDomain: "strafkatalog-neu.firebaseapp.com",
+
+            databaseURL: "https://strafkatalog-neu-default-rtdb.europe-west1.firebasedatabase.app",
+
+            projectId: "strafkatalog-neu",
+
+            storageBucket: "strafkatalog-neu.firebasestorage.app",
+
+            messagingSenderId: "673061278018",
+
+            appId: "1:673061278018:web:8fff324e359af6c5bb38db",
+
+            measurementId: "G-MBJQ4EP7Q2"
+
+        };
+
+
+
+        firebase.initializeApp(firebaseConfig);
+
+        const db = firebase.database();
+
+        const stateRef = db.ref('dartStateCash_V19');
+
+
+
+        const namen = ["Didi", "Dirk", "Maurice", "Nico", "Ronny", "Ciko", "Sebastian", "Ghost"];
+
+        const katalog = [
+
+            { label: "Ab 76", wert: 0.20, typ: 'inverse' },
+
+            { label: "Ab 95", wert: 0.30, typ: 'inverse' },
+
+            { label: "Ab 133", wert: 0.50, typ: 'inverse' },
+
+            { label: "Finish 60+", wert: 1.00, typ: 'inverse' },
+
+            { label: "Finish 80+", wert: 2.00, typ: 'inverse' },
+
+            { label: "Finish 90+", wert: 4.00, typ: 'inverse' },
+
+            { label: "Finish 120+", wert: 5.00, typ: 'inverse' },
+
+            { label: "171 - 180", wert: 5.00, typ: 'inverse' },
+
+            { label: "Pizza", wert: 0.70, typ: 'direct' },
+
+            { label: "Eintrag", wert: 1.00, typ: 'all' }
+
+        ];
+
+
+
+        function getDefaultState() {
+
+            return {
+
+                stats: namen.reduce((acc, n) => ({...acc, [n]: 0}), {}),
+
+                vortrag: namen.reduce((acc, n) => ({...acc, [n]: 0}), {}),
+
+                lifetimeGenerated: namen.reduce((acc, n) => ({...acc, [n]: 0}), {}),
+
+                paid: namen.reduce((acc, n) => ({...acc, [n]: false}), {}),
+
+                seasonTotal: 0,
+
+                history: [],
+
+                logs: []
+
+            };
+
+        }
+
+
+
+        let state = getDefaultState();
+
+        let selectedPlayer = null;
+
+
+
+        renderPlayers();
+
+
+
+        // Echtzeit-Synchronisation mit Firebase
+
+        stateRef.on('value', (snapshot) => {
+
+            const data = snapshot.val();
+
+            if (data) {
+
+                state = data;
+
+                if (!state.stats) state.stats = {};
+
+                if (!state.vortrag) state.vortrag = {};
+
+                if (!state.paid) state.paid = {};
+
+                if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
+
+                if (!state.logs) state.logs = [];
+
+                if (!state.history) state.history = [];
+
+            } else {
+
+                state = getDefaultState();
+
+                save();
+
+            }
+
+            renderPlayers();
+
+            renderLogs();
+
+        });
+
+
+
+        function save() {
+
+            state.stats["Ghost"] = 0;
+
+            state.vortrag["Ghost"] = 0;
+
+            state.paid["Ghost"] = false;
+
+            state.lifetimeGenerated["Ghost"] = 0;
+
+            stateRef.set(state);
+
+        }
+
+
+
+        function addLog(msg) {
+
+            const time = new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            if (!state.logs) state.logs = [];
+
+            state.logs.push({ time, msg });
+
+            if (state.logs.length > 10) state.logs.shift();
+
+            renderLogs();
+
+        }
+
+
+
+        function renderLogs() {
+
+            const container = document.getElementById('log-content');
+
+            container.innerHTML = state.logs && state.logs.length ? state.logs.map(l => `
+
+                <div class="log-entry">
+
+                    <span class="log-time">${l.time}</span>
+
+                    <span class="log-action">${l.msg}</span>
+
+                </div>
+
+            `).join('') : '<div class="log-entry" style="border:none; background:transparent;">Keine Aktionen</div>';
+
+        }
+
+
+
+        function renderPlayers() {
+
+            const area = document.getElementById('player-area');
+
+            area.innerHTML = "";
+
+            let currentOpenTotal = 0;
+
+
+
+            namen.forEach(n => {
+
+                const isSelected = (selectedPlayer === n);
+
+                const isPaid = state.paid ? state.paid[n] : false;
+
+                const isGhost = (n === "Ghost");
+
+                const heute = isGhost ? 0 : (state.stats ? state.stats[n] || 0 : 0);
+
+                const vortragVal = isGhost ? 0 : (state.vortrag ? state.vortrag[n] || 0 : 0);
+
+                const gesamt = heute + vortragVal;
+
+
+
+                if (!isPaid && !isGhost) currentOpenTotal += gesamt;
+
+
+
+                area.innerHTML += `
+
+                    <div class="player-wrapper">
+
+                        <div class="player-card ${isSelected ? 'selected' : ''} ${isPaid ? 'paid' : ''} ${isGhost ? 'is-ghost' : ''}" onclick="selectSinglePlayer('${n}')">
+
+                            <div class="player-name">${n}</div>
+
+                            <div class="vortrag-info">${(vortragVal > 0 && !isGhost) ? 'Vortrag: ' + vortragVal.toFixed(2) + ' €' : ''}</div>
+
+                            <div class="player-sum">${heute.toFixed(2)} €</div>
+
+                            <div class="total-info">Gesamt: ${gesamt.toFixed(2)} €</div>
+
+                        </div>
+
+                        ${!isGhost ? `<button class="btn-pay ${isPaid ? 'is-paid' : ''}" onclick="togglePaid(event, '${n}')">${isPaid ? '✓ BEZAHLT' : 'BEZAHLT'}</button>` : '<div style="height:31px;"></div>'}
+
+                    </div>`;
+
+            });
+
+            document.getElementById('grand-total').innerText = currentOpenTotal.toFixed(2) + " €";
+
+            document.getElementById('season-total').innerText = (state.seasonTotal || 0).toFixed(2) + " €";
+
+        }
+
+
+
+        function selectSinglePlayer(name) {
+
+            selectedPlayer = (selectedPlayer === name) ? null : name;
+
+            renderPlayers();
+
+        }
+
+
+
+        function applyToSelected(eventIndex) {
+
+            if (!selectedPlayer) return alert("Wähle erst einen Spieler aus!");
+
+            const event = katalog[eventIndex];
+
+            if (!state.history) state.history = [];
+
+            state.history.push(JSON.parse(JSON.stringify(state)));
+
+
+
+            if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
+
+
+
+            if (event.typ === 'direct') {
+
+                if (selectedPlayer !== "Ghost") {
+
+                    state.stats[selectedPlayer] = (state.stats[selectedPlayer] || 0) + event.wert;
+
+                    state.lifetimeGenerated[selectedPlayer] = (state.lifetimeGenerated[selectedPlayer] || 0) + event.wert;
+
+                    addLog(`${selectedPlayer}: +${event.wert.toFixed(2)}€ (${event.label})`);
+
+                } else {
+
+                    addLog(`Ghost: ${event.label} (Keine Buchung)`);
+
+                }
+
+            } else if (event.typ === 'all') {
+
+                namen.forEach(n => { 
+
+                    if (n !== "Ghost") {
+
+                        state.stats[n] = (state.stats[n] || 0) + event.wert;
+
+                        state.lifetimeGenerated[n] = (state.lifetimeGenerated[n] || 0) + event.wert;
+
+                    }
+
+                });
+
+                addLog(`${selectedPlayer}: ${event.label} (für alle)`);
+
+            } else {
+
+                namen.forEach(n => { 
+
+                    if (n !== selectedPlayer && n !== "Ghost") {
+
+                        state.stats[n] = (state.stats[n] || 0) + event.wert;
+
+                        state.lifetimeGenerated[n] = (state.lifetimeGenerated[n] || 0) + event.wert;
+
+                    }
+
+                });
+
+                addLog(`${selectedPlayer}: ${event.label}`);
+
+            }
+
+            save();
+
+        }
+
+
+
+        function togglePaid(e, name) {
+
+            if (name === "Ghost") return;
+
+            e.stopPropagation();
+
+            if (!state.history) state.history = [];
+
+            state.history.push(JSON.parse(JSON.stringify(state)));
+
+            const summe = (state.stats[name] || 0) + (state.vortrag[name] || 0);
+
+
+
+            if (!state.paid[name]) {
+
+                state.seasonTotal = (state.seasonTotal || 0) + summe;
+
+                state.paid[name] = true;
+
+                addLog(`${name}: Bezahlt (${summe.toFixed(2)}€)`);
+
+            } else {
+
+                state.seasonTotal = (state.seasonTotal || 0) - summe;
+
+                state.paid[name] = false;
+
+                addLog(`${name}: Wieder offen`);
+
+            }
+
+            save();
+
+        }
+
+
+
+        function adjustSeasonKasse() {
+
+            const action = prompt("Saisonkasse anpassen (z.B. '50' für Entnahme oder 'set 100' für Festwert)");
+
+            if (!action) return;
+
+            if (!state.history) state.history = [];
+
+            state.history.push(JSON.parse(JSON.stringify(state)));
+
+
+
+            if (action.startsWith('set ')) {
+
+                state.seasonTotal = parseFloat(action.replace('set ', '').replace(',', '.'));
+
+            } else {
+
+                const val = parseFloat(action.replace(',', '.'));
+
+                if (!isNaN(val)) state.seasonTotal = (state.seasonTotal || 0) - val;
+
+            }
+
+            save();
+
+        }
+
+
+
+        function undo() {
+
+            if (state.history && state.history.length > 0) {
+
+                const last = state.history.pop();
+
+                state.stats = last.stats;
+
+                state.vortrag = last.vortrag || {};
+
+                state.lifetimeGenerated = last.lifetimeGenerated || {};
+
+                state.seasonTotal = last.seasonTotal;
+
+                state.paid = last.paid;
+
+                state.logs = last.logs || [];
+
+                save();
+
+            }
+
+        }
+
+
+
+        function confirmReset() {
+
+            if (confirm("Spieltag beenden? Bezahlte Beträge werden gelöscht, offene als Vortrag übernommen.")) {
+
+                if (!state.history) state.history = [];
+
+                state.history.push(JSON.parse(JSON.stringify(state)));
+
+                namen.forEach(n => {
+
+                    if (state.paid[n]) {
+
+                        state.stats[n] = 0;
+
+                        state.vortrag[n] = 0;
+
+                        state.paid[n] = false;
+
+                    } else {
+
+                        state.vortrag[n] = (state.vortrag[n] || 0) + (state.stats[n] || 0);
+
+                        state.stats[n] = 0;
+
+                    }
+
+                });
+
+                addLog("--- NEUER TAG ---");
+
+                save();
+
+            }
+
+        }
+
+
+
+        function openStats() {
+
+            const modal = document.getElementById('stats-modal');
+
+            const listContent = document.getElementById('stats-list-content');
+
+            
+
+            if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
+
+
+
+            const sorted = namen
+
+                .filter(n => n !== "Ghost")
+
+                .map(n => ({ name: n, amount: state.lifetimeGenerated[n] || 0 }))
+
+                .sort((a, b) => b.amount - a.amount);
+
+
+
+            listContent.innerHTML = sorted.map((item, idx) => `
+
+                <div class="stats-row">
+
+                    <span class="rank">#${idx + 1}</span>
+
+                    <span class="s-name">${item.name}</span>
+
+                    <span class="s-val">${item.amount.toFixed(2)} €</span>
+
+                </div>
+
+            `).join('');
+
+
+
+            modal.style.display = 'flex';
+
+        }
+
+
+
+        function closeStats(e) {
+
+            document.getElementById('stats-modal').style.display = 'none';
+
+        }
+
+
+
+        // Init Event-Buttons
+
+        const eventArea = document.getElementById('event-area');
+
+        katalog.forEach((item, index) => {
+
+            eventArea.innerHTML += `
+
+                <div class="event-card" onclick="applyToSelected(${index})">
+
+                    <span>${item.label}</span>
+
+                    <b>${item.wert.toFixed(2)} €</b>
+
+                </div>`;
+
+        });
+
+    </script>
+
+</body>
+
+</html> 
+
