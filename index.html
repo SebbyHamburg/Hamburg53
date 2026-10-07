@@ -141,7 +141,7 @@
         
         .player-name { font-weight: bold; font-size: 1.2rem; }
         .vortrag-info { font-size: 0.7rem; color: var(--warning); height: 1.2em; }
-        .player-sum { font-size: 1.6rem; color: #fff; font-weight: bold; margin: 8px 0; }
+        .player-sum { font-size: 1.6rem; color: #fff; font-weight: bold; margin: 10px 0 4px 0; }
 
         .btn-pay { 
             background: #333; 
@@ -397,7 +397,7 @@
                 const isPaid = state.paid ? state.paid[n] : false;
                 const isGhost = (n === "Ghost");
                 
-                // Wenn bezahlt, wird die offene Summe als 0.00 € angezeigt
+                // Wenn bezahlt, wird 0.00 € angezeigt, ansonsten aktueller Wert + Vortrag
                 const heute = isGhost ? 0 : (state.stats ? state.stats[n] || 0 : 0);
                 const vortragVal = isGhost ? 0 : (state.vortrag ? state.vortrag[n] || 0 : 0);
                 const anzeigeSumme = isPaid ? 0 : (heute + vortragVal);
@@ -408,7 +408,6 @@
                     <div class="player-wrapper">
                         <div class="player-card ${isSelected ? 'selected' : ''} ${isPaid ? 'paid' : ''} ${isGhost ? 'is-ghost' : ''}" onclick="selectSinglePlayer('${n}')">
                             <div class="player-name">${n}</div>
-                            <div class="vortrag-info">${(vortragVal > 0 && !isGhost && !isPaid) ? 'Vortrag: ' + vortragVal.toFixed(2) + ' €' : ''}</div>
                             <div class="player-sum">${anzeigeSumme.toFixed(2)} €</div>
                         </div>
                         ${!isGhost ? `<button class="btn-pay ${isPaid ? 'is-paid' : ''}" onclick="togglePaid(event, '${n}')">${isPaid ? '✓ BEZAHLT' : 'BEZAHLT'}</button>` : '<div style="height:31px;"></div>'}
