@@ -348,7 +348,13 @@
                 if (!state.stats) state.stats = {};
                 if (!state.vortrag) state.vortrag = {};
                 if (!state.paidAmount) state.paidAmount = {};
-                if (!state.paid) state.paid = {};
+                if (!state.paid || typeof state.paid !== 'object') {
+                    state.paid = namen.reduce((acc, n) => ({...acc, [n]: false}), {});
+                } else {
+                    namen.forEach(n => {
+                        if (state.paid[n] === undefined) state.paid[n] = false;
+                    });
+                }
                 if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
                 if (!state.logs) state.logs = [];
                 if (!state.history) state.history = [];
@@ -359,6 +365,21 @@
             renderPlayers();
             renderLogs();
         });
+
+        function saveSnapshot() {
+            if (!state.history) state.history = [];
+            const cleanState = {
+                stats: {...state.stats},
+                vortrag: {...state.vortrag},
+                paidAmount: {...state.paidAmount},
+                lifetimeGenerated: {...state.lifetimeGenerated},
+                paid: {...state.paid},
+                seasonTotal: state.seasonTotal,
+                logs: [...state.logs]
+            };
+            state.history.push(cleanState);
+            if (state.history.length > 10) state.history.shift();
+        }
 
         function save() {
             state.stats["Ghost"] = 0;
@@ -393,7 +414,8 @@
 
             namen.forEach(n => {
                 const isSelected = (selectedPlayer === n);
-                const isPaid = state.paid ? state.paid[n] : false;
+                if (!state.paid) state.paid = {};
+                const isPaid = Boolean(state.paid[n]);
                 const isGhost = (n === "Ghost");
                 
                 const heute = isGhost ? 0 : (state.stats ? state.stats[n] || 0 : 0);
@@ -423,8 +445,7 @@
         function applyToSelected(eventIndex) {
             if (!selectedPlayer) return alert("Wähle erst einen Spieler aus!");
             const event = katalog[eventIndex];
-            if (!state.history) state.history = [];
-            state.history.push(JSON.parse(JSON.stringify(state)));
+            saveSnapshot();
 
             if (!state.lifetimeGenerated) state.lifetimeGenerated = {};
 
@@ -453,20 +474,23 @@
                 });
                 addLog(`${selectedPlayer}: ${event.label}`);
             }
-            save();
+
             renderPlayers();
             renderLogs();
+            save();
         }
 
         function togglePaid(e, name) {
             if (name === "Ghost") return;
             e.stopPropagation();
-            if (!state.history) state.history = [];
-            state.history.push(JSON.parse(JSON.stringify(state)));
+            saveSnapshot();
 
             if (!state.paidAmount) state.paidAmount = {};
+            if (!state.paid) state.paid = {};
 
-            if (!state.paid[name]) {
+            const currentlyPaid = Boolean(state.paid[name]);
+
+            if (!currentlyPaid) {
                 const offenerBetrag = (state.stats[name] || 0) + (state.vortrag[name] || 0);
                 state.paidAmount[name] = offenerBetrag;
                 state.seasonTotal = (state.seasonTotal || 0) + offenerBetrag;
@@ -479,16 +503,16 @@
                 state.paid[name] = false;
                 addLog(`${name}: Wieder offen`);
             }
-            save();
+
             renderPlayers();
             renderLogs();
+            save();
         }
 
         function adjustSeasonKasse() {
             const action = prompt("Saisonkasse anpassen (z.B. '50' für Entnahme oder 'set 100' für Festwert)");
             if (!action) return;
-            if (!state.history) state.history = [];
-            state.history.push(JSON.parse(JSON.stringify(state)));
+            saveSnapshot();
 
             if (action.startsWith('set ')) {
                 state.seasonTotal = parseFloat(action.replace('set ', '').replace(',', '.'));
@@ -496,9 +520,8 @@
                 const val = parseFloat(action.replace(',', '.'));
                 if (!isNaN(val)) state.seasonTotal = (state.seasonTotal || 0) - val;
             }
-            save();
             renderPlayers();
-            renderLogs();
+            save();
         }
 
         function undo() {
@@ -511,16 +534,15 @@
                 state.seasonTotal = last.seasonTotal;
                 state.paid = last.paid;
                 state.logs = last.logs || [];
-                save();
                 renderPlayers();
                 renderLogs();
+                save();
             }
         }
 
         function confirmReset() {
             if (confirm("Spieltag beenden? Bezahlte Beträge werden gelöscht, offene als Vortrag übernommen.")) {
-                if (!state.history) state.history = [];
-                state.history.push(JSON.parse(JSON.stringify(state)));
+                saveSnapshot();
                 namen.forEach(n => {
                     if (state.paid[n]) {
                         state.stats[n] = 0;
@@ -532,10 +554,12 @@
                         state.stats[n] = 0;
                     }
                 });
-                addLog("--- NEUER TAG ---");
-                save();
+                // Verlauf beim Reset komplett leeren und mit neuem Tag starten
+                state.logs = [];
+                addLog("--- NEUER SPIELTAG ---");
                 renderPlayers();
                 renderLogs();
+                save();
             }
         }
 
