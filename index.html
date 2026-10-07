@@ -455,6 +455,8 @@
                 addLog(`${selectedPlayer}: ${event.label}`);
             }
             save();
+            renderPlayers();
+            renderLogs();
         }
 
         function togglePaid(e, name) {
@@ -496,6 +498,7 @@
                 if (!isNaN(val)) state.seasonTotal = (state.seasonTotal || 0) - val;
             }
             save();
+            renderPlayers();
         }
 
         function undo() {
@@ -509,6 +512,8 @@
                 state.paid = last.paid;
                 state.logs = last.logs || [];
                 save();
+                renderPlayers();
+                renderLogs();
             }
         }
 
@@ -529,6 +534,8 @@
                 });
                 addLog("--- NEUER TAG ---");
                 save();
+                renderPlayers();
+                renderLogs();
             }
         }
 
